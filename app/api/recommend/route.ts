@@ -6,7 +6,14 @@ export async function POST(req: NextRequest) {
     const { previousResponses = [] } = await req.json();
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        temperature: 0.9,       // Increased for more varied output
+        topP: 0.95,
+        maxOutputTokens: 150
+      }
+    });
 
     const borrowedBooks = [
       "Le Petit Prince",
@@ -14,12 +21,6 @@ export async function POST(req: NextRequest) {
       "1984",
       "L'Étranger"
     ];
-
-    const generationConfig = {
-      temperature: 0.9, // Augmenté pour plus de variété
-      topP: 0.95,
-      maxOutputTokens: 150
-    };
 
     const prompt = `
 Tu es l'assistant de la bibliothèque TED University.
@@ -42,10 +43,10 @@ Structure de réponse :
 - Conclusion encourageante
 `;
 
-    const response = await model.generateContent(prompt, generationConfig);
+    const response = await model.generateContent(prompt);
     let reponse = response.response.text().trim();
 
-    // Nettoyage supplémentaire des suggestions répétées
+    // Remove any banned titles just in case
     const bannedTitles = ["La Peste", "Le Procès", "Fahrenheit 451"];
     bannedTitles.forEach(title => {
       reponse = reponse.replace(new RegExp(title, "gi"), "");

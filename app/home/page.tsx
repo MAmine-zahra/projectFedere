@@ -1,8 +1,13 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-
+interface Book {
+  id: number;
+  titre: string;
+  auteur: string;
+  image?: string;
+}
 export default function Home() {
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState<Book[]>([]);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -10,7 +15,7 @@ export default function Home() {
         const response = await fetch('http://localhost:5000/api/livres'); // Adjust the URL if necessary
         const data = await response.json();
         // Filter books with IDs from 1 to 8
-        const filteredBooks = data.filter((book) => book.id >= 1 && book.id <= 8);
+        const filteredBooks = data.filter((book:Book) => book.id >= 1 && book.id <= 8);
         setBooks(filteredBooks);
       } catch (error) {
         console.error('Error fetching books:', error);
