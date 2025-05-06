@@ -1,0 +1,13 @@
+.clip-diagonal-left {
+  clip-path: polygon(0 0, 100% 0, 50% 100%, 0 100%);
+}
+
+.clip-diagonal-right {
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 0 100%);
+}
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+  min-height: 100vh;
+}
