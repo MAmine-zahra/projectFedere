@@ -33,7 +33,7 @@ const data = await response.json()
         console.log('Login successful:', data)
         const {nom,email, id, role} = data.user
         localStorage.setItem('user', JSON.stringify({nom,email,id,role})) // Store user data in local storage
-        router.push('/home') // Redirect to the home page
+        role=='admin' ? router.push('/admin') : router.push('/home') 
       } else {
         setError(data.message || 'Identifiant ou mot de passe incorrect.')
       }
@@ -67,7 +67,7 @@ const data = await response.json()
                 placeholder="Identifiant"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full pl-10 py-2 rounded-xl border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="w-full pl-10 py-2 rounded-xl border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
             </div>
 

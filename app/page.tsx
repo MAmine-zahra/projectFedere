@@ -1,12 +1,50 @@
-// login/page.js
 'use client'
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import Head from 'next/head'
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { FaUser, FaLock } from 'react-icons/fa'
+import Image from 'next/image'
 
 export default function Login() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const response = await fetch('http://localhost:5000/api/utilisateurs/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: username, mot_de_passe: password }),
+      })
+console.log(response.ok==true);
+
+const data = await response.json()
+      if (!response.ok) {
+        
+        setError(data.message || 'Identifiant ou mot de passe incorrect.')
+        return
+      }
+
+      if (data) {
+        setError('')
+        localStorage.removeItem('user') // Clear any previous user data
+        console.log('Login successful:', data)
+        const {nom,email, id, role} = data.user
+        localStorage.setItem('user', JSON.stringify({nom,email,id,role})) // Store user data in local storage
+        router.push('/home') // Redirect to the home page
+      } else {
+        setError(data.message || 'Identifiant ou mot de passe incorrect.')
+      }
+    } catch (err) {
+      console.log(err);
+      
+      
+      setError('Identifiant ou mot de passe incorrect.')
+    }
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-200 flex items-center justify-center px-4">
@@ -21,13 +59,15 @@ export default function Login() {
             </p>
           </div>
 
-          <form className="mt-6 space-y-4">
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <div className="relative">
               <FaUser className="absolute left-3 top-3.5 text-purple-500" />
               <input
                 type="text"
                 placeholder="Identifiant"
-                className="w-full pl-10 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full pl-10 py-2 rounded-xl border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
             </div>
 
@@ -36,14 +76,13 @@ export default function Login() {
               <input
                 type="password"
                 placeholder="Mot de passe"
-                className="w-full pl-10 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 py-2 rounded-xl border border-gray-700 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
             </div>
 
-            <div className="flex items-center text-sm">
-              <input type="checkbox" id="remember" className="mr-2 text-purple-600" />
-              <label htmlFor="remember" className="text-gray-600">Se souvenir de moi</label>
-            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <button
               type="submit"
@@ -51,31 +90,11 @@ export default function Login() {
             >
               Se connecter
             </button>
-
-            <div className="flex items-center justify-center my-2 text-sm text-gray-500">
-              <hr className="border-gray-300 flex-grow" />
-              <span className="px-2">ou</span>
-              <hr className="border-gray-300 flex-grow" />
-            </div>
-
-            <button
-              type="button"
-              className="w-full flex items-center justify-center border border-gray-300 rounded-xl py-2 bg-white hover:bg-gray-50 transition"
-            >
-              <Image
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                width={20}
-                height={20}
-                className="mr-2"
-              />
-              <span className="text-gray-600">Google</span>
-            </button>
           </form>
 
           <p className="text-sm text-center text-gray-600 mt-6">
             Pas encore inscrit ?
-            <a href="#" className="text-blue-600 ml-1 hover:underline">Créez un compte</a>
+            <a href="/register" className="text-blue-600 ml-1 hover:underline">Créez un compte</a>
           </p>
         </div>
       </div>
